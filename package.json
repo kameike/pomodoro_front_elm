@@ -1,0 +1,16 @@
+{
+    "name": "generated-elm",
+    "private": false,
+    "version": "0.1.0",
+    "description": "Generated elm",
+    "dependencies": {},
+    "devDependencies": {
+        "browser-sync": "2.18.2",
+        "gulp": "gulpjs/gulp#4.0",
+        "gulp-elm": "0.4.1",
+        "gulp-plumber": "1.0.1"
+    },
+    "scripts": {
+      "watch" : "gulp"
+    }
+}
