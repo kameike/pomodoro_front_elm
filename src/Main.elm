@@ -35,13 +35,8 @@ type alias Model =
   , timerModel: Timer.Model }
 
 emptyModel: Model
-emptyModel =
-  { currentTime = 0 
-  , timerModel
-  = { startTime = Nothing
-    , currentTimerData = Nothing
-    , currentTime = 0
-    , isActive = False }}
+emptyModel = { currentTime = 0 
+             , timerModel = Timer.defaultModel}
 
 init: (Model, Cmd Msg)
 init =
@@ -51,25 +46,20 @@ init =
 view: Model -> Html Msg
 view model = 
   let 
-      currentTime = toString (fromTime model.currentTime)
-      startTime = Maybe.withDefault 0 model.timerModel.startTime
-      timerData = Maybe.withDefault { duration = 0 } model.timerModel.currentTimerData
-      lastTime = timerData.duration - model.timerModel.currentTime + startTime
-      statusMInt = floor(lastTime / Time.minute)
-      statusSInt = floor(toFloat(floor(lastTime) % floor(Time.minute)) / Time.second)
-      statusM = toString(statusMInt)
-      statusS = toString(statusSInt)
+      timerModel = model.timerModel
   in
      div [] [
-       div [] [text ("現在時刻: " ++ currentTime)],
-       button [onClick (TimeMsg UpdateTime)] [text "更新ボタン"],
        div [] [text (
          if model.timerModel.isActive then
-           "timer : " ++  statusM ++ ":" ++ statusS
+           "timer : "
+           ++  Timer.lastMinutes timerModel
+           ++ ":"
+           ++ Timer.lastSecounds timerModel
          else
            "not-active"
          )],
-       button [onClick (TimerMsg (Timer.activateWith { duration = (Time.minute * 10) }))] [text "10秒タイマー"],
+       div [] [text (toString (Timer.progressOf model.timerModel))],
+       button [onClick (TimerMsg (Timer.activateWith { duration = (Time.minute * 25) }))] [text "10秒タイマー"],
        div [] [text ("end")]
      ]
 
