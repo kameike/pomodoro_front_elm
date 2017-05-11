@@ -5,6 +5,7 @@ import Time exposing (Time)
 import Date exposing (fromTime)
 import Task exposing (Task)
 import Components.Timer as Timer exposing (..)
+import Components.PomodoroSession as Session exposing (..)
 
 
 main : Program Never Model Msg
@@ -59,7 +60,7 @@ view model =
            "not-active"
          )],
        div [] [text (toString (Timer.progressOf model.timerModel))],
-       button [onClick (TimerMsg (Timer.activateWith { duration = (Time.minute * 25) }))] [text "10秒タイマー"],
+       button [onClick (TimerMsg (Timer.activateMsgFor { duration = (Time.minute * 25) }))] [text "10秒タイマー"],
        div [] [text ("end")]
      ]
 
