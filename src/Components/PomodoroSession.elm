@@ -34,7 +34,7 @@ update msg model =
       { model | workTimerModel = newTimerModel } ! [Cmd.map WorkTimerMsg timerCmd]
     CancelWork ->
       let 
-        (newTimerModel, timerCmd) = Timer.update Timer.cancelMsg model.workTimerModel
+        (newTimerModel, timerCmd) = Timer.update Timer.CancelTimer model.workTimerModel
       in
       { model | workTimerModel = newTimerModel } ! [Cmd.map WorkTimerMsg timerCmd]
     CompleteWork ->
@@ -47,15 +47,27 @@ update msg model =
       { model | restTimerModel = newTimerModel } ! [Cmd.map RestTimerMsg timerCmd]
     StopRest ->
       let 
-        (newTimerModel, timerCmd) = Timer.update Timer.cancelMsg model.restTimerModel
+        (newTimerModel, timerCmd) = Timer.update Timer.CancelTimer model.restTimerModel
       in
       { model | restTimerModel = newTimerModel } ! [Cmd.map RestTimerMsg timerCmd]
     CompleteRest ->
       (model, Cmd.none)
     WorkTimerMsg timerMsg ->
-      (model, Cmd.none)
+      let 
+          (newTimerModel, timerCmd) = Timer.update timerMsg model.workTimerModel
+          nextCmd = case timerMsg of
+            Timer.CompletedTimer _ -> dispatch CompleteWork
+            _ -> Cmd.none
+      in
+      { model | workTimerModel = newTimerModel} ! [nextCmd, Cmd.map WorkTimerMsg timerCmd]
     RestTimerMsg timerMsg ->
-      (model, Cmd.none)
+      let 
+          (newTimerModel, timerCmd) = Timer.update timerMsg model.restTimerModel
+          nextCmd = case timerMsg of
+            Timer.CompletedTimer _ -> dispatch CompleteRest
+            _ -> Cmd.none
+      in
+      { model | restTimerModel = newTimerModel} ! [Cmd.map RestTimerMsg timerCmd]
 
 dispatch: msg -> Cmd msg
 dispatch msg = 

@@ -1,4 +1,4 @@
-module Components.Timer exposing(Msg, Model, TimerData, subscriptions, update, activateMsgFor, defaultModel, lastMinutes, lastSecounds, progressOf, cancelMsg)
+module Components.Timer exposing(Msg(..), Model, TimerData, subscriptions, update, activateMsgFor, defaultModel, lastMinutes, lastSecounds, progressOf)
 import Html exposing (..)
 import Time exposing (Time)
 import Task exposing (Task)
@@ -28,8 +28,6 @@ type Msg
 activateMsgFor: TimerData -> Msg
 activateMsgFor = ActivateTimer
 
-cancelMsg: Msg
-cancelMsg = CancelTimer
 
 subscriptions: Sub Msg
 subscriptions = 
