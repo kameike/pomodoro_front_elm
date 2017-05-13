@@ -1,4 +1,4 @@
-module Components.PomodoroSession exposing (Msg)
+module Components.PomodoroSession exposing (Msg(CompleteWork, CompleteRest), Model)
 
 import Components.Timer as Timer exposing(..)
 import Time exposing (Time)
@@ -21,7 +21,6 @@ type alias Model =
   , restTimerModel : Timer.Model
   , workDuration: Duration
   , restDuration: Duration}
-
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =

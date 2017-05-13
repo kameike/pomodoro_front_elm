@@ -5,8 +5,7 @@ import Time exposing (Time)
 import Date exposing (fromTime)
 import Task exposing (Task)
 import Components.Timer as Timer exposing (..)
-import Components.PomodoroSession as Session exposing (..)
-
+import Components.PomodoroSession as Pomodoro exposing (..)
 
 main : Program Never Model Msg
 main =
@@ -16,20 +15,14 @@ main =
                          , subscriptions = subscriptions }
 
 type Msg
-  = TimeMsg TimeMsg
-  | TimerMsg Timer.Msg
-
-type TimeMsg 
-  = Tick Time
-  | UpdateTime
+  = TimerMsg Timer.Msg
+  | PomodoroSession Pomodoro.Msg
 
 type Flags = None
 
 subscriptions: Model -> Sub Msg
 subscriptions model =
-  Sub.batch 
-  [Time.every Time.second (\_ -> UpdateTime |> TimeMsg)
-  ,Sub.map TimerMsg Timer.subscriptions]
+  Sub.none
 
 type alias Model = 
   { currentTime : Time
@@ -41,7 +34,7 @@ emptyModel = { currentTime = 0
 
 init: (Model, Cmd Msg)
 init =
-  (emptyModel, Task.perform TimeMsg (Task.succeed UpdateTime))
+  (emptyModel, Cmd.none)
 
 
 view: Model -> Html Msg
@@ -68,16 +61,13 @@ view model =
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of 
-    TimeMsg timeMsg ->
-      case timeMsg of
-        UpdateTime ->
-          (model, Cmd.map TimeMsg (Task.perform Tick Time.now))
-        Tick time ->
-          ({model | currentTime = time}, Cmd.none)
     TimerMsg msg ->
       let
           (newTimerModel, timerCmd) = Timer.update msg model.timerModel
           newModel = {model | timerModel = newTimerModel}
       in
          newModel ! [Cmd.map TimerMsg timerCmd]
+    PomodoroSession msg ->
+      model ! [Cmd.none]
+
 
