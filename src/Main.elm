@@ -15,34 +15,31 @@ main =
                , subscriptions = subscriptions }
 
 type Msg
-  = TimerMsg Timer.Msg
-  | PomodoroSession Pomodoro.Msg
+  = PomodoroSession Pomodoro.Msg
 
 type Flags = None
 
 subscriptions: Model -> Sub Msg
 subscriptions model =
-  Sub.map TimerMsg Timer.subscriptions
+  Sub.map PomodoroSession Pomodoro.subscriptions
 
 type alias Model = 
   { currentTime : Time
-  , timerModel: Timer.Model }
+  , pomodoroModel: Pomodoro.Model}
 
 emptyModel: Model
 emptyModel = { currentTime = 0 
-             , timerModel = Timer.defaultModel}
-
+             , pomodoroModel = Pomodoro.defaultModel { workDuration = Time.second * 2
+                                                     , restDuration = Time.second * 3}}
 init: (Model, Cmd Msg)
 init =
-  (emptyModel, Cmd.none)
+  (emptyModel , Cmd.none)
 
 view: Model -> Html Msg
 view model = 
-  let 
-      timerModel = model.timerModel
-  in
-     timerView timerModel
-
+  div [] [ timerView model.pomodoroModel.workTimerModel
+         , timerView model.pomodoroModel.restTimerModel
+         , button [onClick (PomodoroSession Pomodoro.StartWork)] [text "10秒タイマー"]]
 
 timerView: Timer.Model -> Html Msg
 timerView timerModel =
@@ -57,20 +54,16 @@ timerView timerModel =
            "not-active"
          )],
        div [] [text (toString (Timer.progressOf timerModel))],
-       button [onClick (TimerMsg (Timer.activateMsgFor { duration = (Time.minute * 25) }))] [text "10秒タイマー"],
        div [] [text ("end")]
      ]
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of 
-    TimerMsg msg ->
-      let
-          (newTimerModel, timerCmd) = Timer.update msg model.timerModel
-          newModel = {model | timerModel = newTimerModel}
-      in
-         newModel ! [Cmd.map TimerMsg timerCmd]
     PomodoroSession msg ->
-      model ! [Cmd.none]
+      let 
+          (newModel, newCmd) = Pomodoro.update msg model.pomodoroModel
+      in
+      {model| pomodoroModel = newModel} ! [Cmd.map PomodoroSession newCmd]
 
 
