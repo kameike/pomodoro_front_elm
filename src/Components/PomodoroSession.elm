@@ -1,4 +1,4 @@
-module Components.PomodoroSession exposing (Msg(CompleteWork, CompleteRest), Model)
+module Components.PomodoroSession exposing (Msg(CompleteWork, CompleteRest, StartWork), Model)
 
 import Components.Timer as Timer exposing(..)
 import Time exposing (Time)
@@ -16,11 +16,23 @@ type Msg
   | WorkTimerMsg Timer.Msg
   | RestTimerMsg Timer.Msg
 
+subscriptions: Sub Msg
+subscriptions =
+  Sub.batch [ Sub.map WorkTimerMsg Timer.subscriptions
+  , Sub.map RestTimerMsg Timer.subscriptions]
+
 type alias Model = 
   { workTimerModel : Timer.Model
   , restTimerModel : Timer.Model
   , workDuration: Duration
   , restDuration: Duration}
+
+defaultModel: Model
+defaultModel =
+  { workTimerModel = Timer.defaultModel
+  , restTimerModel = Timer.defaultModel
+  , workDuration = Time.minute * 25
+  , restDuration = Time.minute * 5}
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =

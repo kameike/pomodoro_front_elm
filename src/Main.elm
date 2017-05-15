@@ -9,10 +9,10 @@ import Components.PomodoroSession as Pomodoro exposing (..)
 
 main : Program Never Model Msg
 main =
-    Html.program {init = init
-                         , update = update
-                         , view = view 
-                         , subscriptions = subscriptions }
+  Html.program {init = init
+               , update = update
+               , view = view 
+               , subscriptions = subscriptions }
 
 type Msg
   = TimerMsg Timer.Msg
@@ -22,7 +22,7 @@ type Flags = None
 
 subscriptions: Model -> Sub Msg
 subscriptions model =
-  Sub.none
+  Sub.map TimerMsg Timer.subscriptions
 
 type alias Model = 
   { currentTime : Time
@@ -36,15 +36,19 @@ init: (Model, Cmd Msg)
 init =
   (emptyModel, Cmd.none)
 
-
 view: Model -> Html Msg
 view model = 
   let 
       timerModel = model.timerModel
   in
+     timerView timerModel
+
+
+timerView: Timer.Model -> Html Msg
+timerView timerModel =
      div [] [
        div [] [text (
-         if model.timerModel.isActive then
+         if timerModel.isActive then
            "timer : "
            ++  Timer.lastMinutes timerModel
            ++ ":"
@@ -52,11 +56,10 @@ view model =
          else
            "not-active"
          )],
-       div [] [text (toString (Timer.progressOf model.timerModel))],
+       div [] [text (toString (Timer.progressOf timerModel))],
        button [onClick (TimerMsg (Timer.activateMsgFor { duration = (Time.minute * 25) }))] [text "10秒タイマー"],
        div [] [text ("end")]
      ]
-
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
