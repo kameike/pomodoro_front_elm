@@ -37,25 +37,32 @@ init =
 
 view: Model -> Html Msg
 view model = 
-  div [] [ timerView model.pomodoroModel.workTimerModel
-         , timerView model.pomodoroModel.restTimerModel
-         , button [onClick (PomodoroSession Pomodoro.StartWork)] [text "10秒タイマー"]]
+  let 
+      currentView = 
+        if model.pomodoroModel.workTimerModel.isActive then
+         workingView model.pomodoroModel.workTimerModel
+        else if model.pomodoroModel.restTimerModel.isActive then
+         restingView model.pomodoroModel.restTimerModel
+        else 
+         div [] [text "TIMER IS NOT ACTIVE"]
+  in
+  div [] [currentView
+         , button [onClick (PomodoroSession Pomodoro.StartWork)] [text "スタートポモドーロ"]]
 
-timerView: Timer.Model -> Html Msg
-timerView timerModel =
-     div [] [
-       div [] [text (
-         if timerModel.isActive then
-           "timer : "
-           ++  Timer.lastMinutes timerModel
-           ++ ":"
-           ++ Timer.lastSecounds timerModel
-         else
-           "not-active"
-         )],
-       div [] [text (toString (Timer.progressOf timerModel))],
-       div [] [text ("end")]
-     ]
+restingView: Timer.Model -> Html Msg
+restingView timerModel =
+  div [] [
+    div [] [ text "RESTING" ],
+    div [] [ text (Timer.lastMinutes timerModel ++ ":" ++ Timer.lastSecounds timerModel) ]
+  ]
+
+
+workingView: Timer.Model -> Html Msg
+workingView timerModel =
+  div [] [
+    div [] [ text "WORKING" ],
+    div [] [ text (Timer.lastMinutes timerModel ++ ":" ++ Timer.lastSecounds timerModel) ]
+  ]
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
