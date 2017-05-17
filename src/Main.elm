@@ -29,7 +29,7 @@ type alias Model =
 
 emptyModel: Model
 emptyModel = { currentTime = 0 
-             , pomodoroModel = Pomodoro.defaultModel { workDuration = Time.second * 2
+             , pomodoroModel = Pomodoro.defaultModel { workDuration = Time.second * 3 
                                                      , restDuration = Time.second * 3}}
 init: (Model, Cmd Msg)
 init =

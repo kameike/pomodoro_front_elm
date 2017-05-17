@@ -28,11 +28,9 @@ type Msg
 activateMsgFor: TimerData -> Msg
 activateMsgFor = ActivateTimer
 
-
 subscriptions: Sub Msg
 subscriptions = 
-  Time.every (Time.millisecond * 100) UpdateTimer
-
+  Sub.batch [ Time.every (Time.millisecond * 100) UpdateTimer ]
 
 defaultModel: Model
 defaultModel = { startTime = Nothing
@@ -42,13 +40,27 @@ defaultModel = { startTime = Nothing
 
 lastMinutes: Model -> String
 lastMinutes model =
-  let minutes = floor(lastTimeOf model / Time.minute)
-  in attachZeroTo minutes
+  let 
+      lastTime = lastTimeOf model
+      minutes = 
+        if lastTime > 0 then
+          floor(lastTimeOf model / Time.minute)
+        else
+          0
+  in 
+     attachZeroTo minutes
 
 lastSecounds: Model -> String
 lastSecounds model = 
-  let seconds = floor (toFloat(floor(lastTimeOf model) % floor(Time.minute)) / Time.second)
-  in attachZeroTo seconds
+  let 
+      lastTime = lastTimeOf model
+      seconds = 
+        if lastTime > 0 then
+          floor (toFloat(floor(lastTimeOf model) % floor(Time.minute)) / Time.second)
+        else
+          0
+  in 
+     attachZeroTo seconds
 
 lastTimeOf: Model -> Float
 lastTimeOf model =
@@ -81,6 +93,9 @@ update: Msg -> Model -> (Model , Cmd Msg)
 update msg model =
   case msg of
     ActivateTimer data ->
+      if model.isActive then
+         (model, Cmd.none)
+      else
       ({model 
       | currentTimerData = Just data 
       }, Task.perform StartTimer Time.now)
@@ -95,10 +110,14 @@ update msg model =
           isCompleted = 
             case model.currentTimerData of
               Just timerData ->
-                (Maybe.withDefault 0 model.startTime) + timerData.duration < currentTime
+                lastTimeOf model < 0
               Nothing ->
                 False
-          isActive = not isCompleted && model.isActive
+          hasFinish =
+            case model.currentTimerData of
+              Just _ -> False
+              Nothing -> True
+          isActive = not isCompleted && not hasFinish
           newModel = { model 
                      | currentTime = currentTime
                      , currentTimerData = 
@@ -114,11 +133,9 @@ update msg model =
             Just timerData -> 
               Task.perform CompletedTimer (Task.succeed currentTime)
             Nothing -> Cmd.none
-         , Cmd.none ]
+         ]
       else
          (newModel, Cmd.none)
-    CompletedTimer currentTime ->
-      (model, Cmd.none)
-    CancelTimer ->
+    _ ->
       (model, Cmd.none)
 
