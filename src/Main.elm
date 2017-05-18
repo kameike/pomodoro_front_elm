@@ -1,11 +1,15 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Date exposing (fromTime)
 import Html.Events exposing (onClick)
 import Time exposing (Time)
-import Date exposing (fromTime)
 import Task exposing (Task)
 import Components.Timer as Timer exposing (..)
 import Components.PomodoroSession as Pomodoro exposing (..)
+
+type Msg
+  = PomodoroSession Pomodoro.Msg
+type Flags = None
 
 main : Program Never Model Msg
 main =
@@ -13,11 +17,6 @@ main =
                , update = update
                , view = view 
                , subscriptions = subscriptions }
-
-type Msg
-  = PomodoroSession Pomodoro.Msg
-
-type Flags = None
 
 subscriptions: Model -> Sub Msg
 subscriptions model =
@@ -56,7 +55,6 @@ restingView timerModel =
     div [] [ text (Timer.lastMinutes timerModel ++ ":" ++ Timer.lastSecounds timerModel) ]
   ]
 
-
 workingView: Timer.Model -> Html Msg
 workingView timerModel =
   div [] [
@@ -72,5 +70,4 @@ update msg model =
           (newModel, newCmd) = Pomodoro.update msg model.pomodoroModel
       in
       {model| pomodoroModel = newModel} ! [Cmd.map PomodoroSession newCmd]
-
 

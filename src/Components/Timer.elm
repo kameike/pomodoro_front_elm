@@ -1,4 +1,4 @@
-module Components.Timer exposing(Msg(..), Model, TimerData, subscriptions, update, activateMsgFor, defaultModel, lastMinutes, lastSecounds, progressOf)
+module Components.Timer exposing(Msg(CompleteTimer, CancelTimer), Model, TimerData, subscriptions, update, activateMsgFor, defaultModel, lastMinutes, lastSecounds, progressOf)
 import Html exposing (..)
 import Time exposing (Time)
 import Task exposing (Task)
@@ -6,23 +6,20 @@ import Task exposing (Task)
 
 type alias Duration = Time
 type alias CurrentTime = Time
-
 type alias TimerData = {
   duration: Duration
 }
-
 type alias Model = {
   startTime: Maybe Time,
   currentTimerData: Maybe TimerData,
   currentTime: Time,
   isActive: Bool
 }
-
 type Msg
   = ActivateTimer TimerData
   | StartTimer CurrentTime 
   | UpdateTimer CurrentTime 
-  | CompletedTimer CurrentTime
+  | CompleteTimer CurrentTime
   | CancelTimer
 
 activateMsgFor: TimerData -> Msg
@@ -131,7 +128,7 @@ update msg model =
          newModel!
          [ case model.currentTimerData of
             Just timerData -> 
-              Task.perform CompletedTimer (Task.succeed currentTime)
+              Task.perform CompleteTimer (Task.succeed currentTime)
             Nothing -> Cmd.none
          ]
       else

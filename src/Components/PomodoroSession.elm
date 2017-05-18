@@ -1,5 +1,4 @@
 module Components.PomodoroSession exposing (Msg(CompleteWork, CompleteRest, StartWork), Model, subscriptions, defaultModel, update, TimeSet)
-
 import Components.Timer as Timer exposing(..)
 import Time exposing (Time)
 import Task exposing (Task)
@@ -16,11 +15,6 @@ type Msg
   | WorkTimerMsg Timer.Msg
   | RestTimerMsg Timer.Msg
 
-subscriptions: Sub Msg
-subscriptions =
-  Sub.batch [ Sub.map WorkTimerMsg Timer.subscriptions
-  , Sub.map RestTimerMsg Timer.subscriptions]
-
 type alias Model = 
   { workTimerModel : Timer.Model
   , restTimerModel : Timer.Model
@@ -30,6 +24,11 @@ type alias Model =
 type alias TimeSet =
   { workDuration: Time
   , restDuration: Time}
+
+subscriptions: Sub Msg
+subscriptions =
+  Sub.batch [ Sub.map WorkTimerMsg Timer.subscriptions
+  , Sub.map RestTimerMsg Timer.subscriptions]
 
 defaultModel: TimeSet -> Model
 defaultModel set =
@@ -71,7 +70,7 @@ update msg model =
       let 
           (newTimerModel, timerCmd) = Timer.update timerMsg model.workTimerModel
           nextCmd = case timerMsg of
-            Timer.CompletedTimer _ -> dispatch CompleteWork
+            Timer.CompleteTimer _ -> dispatch CompleteWork
             _ -> Cmd.none
       in
       { model | workTimerModel = newTimerModel} ! [nextCmd, Cmd.map WorkTimerMsg timerCmd]
@@ -79,7 +78,7 @@ update msg model =
       let 
           (newTimerModel, timerCmd) = Timer.update timerMsg model.restTimerModel
           nextCmd = case timerMsg of
-            Timer.CompletedTimer _ -> dispatch CompleteRest
+            Timer.CompleteTimer _ -> dispatch CompleteRest
             _ -> Cmd.none
       in
       { model | restTimerModel = newTimerModel} ! [Cmd.map RestTimerMsg timerCmd]
